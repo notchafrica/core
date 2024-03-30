@@ -43,7 +43,7 @@ trait HasSandboxBalance
      */
     public function decreaseSandboxBalance(float $amount, array $parameters = [])
     {
-        return $this->createSandboxBalanceHistory(-1 * abs(round($amount)), $parameters);
+        return $this->createSandboxBalanceHistory(round($amount), $parameters);
     }
 
     /**

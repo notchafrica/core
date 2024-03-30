@@ -43,7 +43,7 @@ trait HasAvailableBalance
      */
     public function decreaseAvailableBalance(float $amount, array $parameters = [])
     {
-        return $this->createAvailableBalanceHistory(-1 * abs(round($amount)), $parameters);
+        return $this->createAvailableBalanceHistory(round($amount), $parameters);
     }
 
     /**
