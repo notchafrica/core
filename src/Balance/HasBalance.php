@@ -43,7 +43,7 @@ trait HasBalance
      */
     public function decreaseBalance(float $amount, array $parameters = [])
     {
-        return $this->createBalanceHistory(round($amount), $parameters);
+        return $this->createBalanceHistory(- round($amount), $parameters);
     }
 
     /**
