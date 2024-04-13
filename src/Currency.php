@@ -5,6 +5,7 @@ namespace Notch\Core;
 use Illuminate\Contracts\Cache\Factory as FactoryContract;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class Currency
 {
@@ -158,21 +159,7 @@ class Currency
 
         // Format the value
 
-        switch ($this->config('driver')) {
-            case 'model':
-                $model = $this->config('drivers.model.class');
-                $currency = $model::where('code', $code)->first();
-
-                break;
-            case 'database':
-
-                $table = $this->config('drivers.model.table');
-                $currency = DB::table($table)->where('code', $code)->first();
-                break;
-            default:
-                // code...
-                break;
-        }
+        $currency = $this->getCurrency($code);
 
         $value = number_format((float) $value, (int) ($currency->fraction ?? 2), $decimal, $thousand);
         // Apply the formatted measurement
@@ -212,7 +199,7 @@ class Currency
      */
     public function hasCurrency($code)
     {
-        return array_key_exists(strtoupper($code), $this->getCurrencies());
+        return $this->getCurrencies()->where('code', $code)->exists();
     }
 
     /**
@@ -235,17 +222,12 @@ class Currency
      */
     public function getCurrency($code = null)
     {
+
         $code = $code ?: $this->getUserCurrency();
 
-        switch ($this->config('driver')) {
-            case 'model':
-                return $this->getCurrencies()->firstWhere('code', $code);
-                break;
-
-            default:
-                return Arr::get($this->getCurrencies(), strtoupper($code));
-                break;
-        }
+        return Cache::remember('currency_'.$code, 3600 * 24, function () use($code) {
+            return $this->getCurrencies()->firstWhere('code', $code);
+        });
     }
 
     /**
@@ -255,19 +237,7 @@ class Currency
      */
     public function getCurrencies()
     {
-        return $this->getDriver()->all();
-    }
-
-    /**
-     * Return all active currencies.
-     *
-     * @return array
-     */
-    public function getActiveCurrencies()
-    {
-        return array_filter($this->getCurrencies(), function ($currency) {
-            return $currency['active'] == true;
-        });
+        return $this->getDriver();
     }
 
     /**
