@@ -76,10 +76,11 @@ class Currency
         // Get currencies involved
         $from = strtoupper($from ?: $this->config('default'));
         $to = strtoupper($to ?: $this->getUserCurrency());
+
+
         // Get exchange rates
         $from_rate = $this->getCurrencyProp($from, 'exchange_rate');
         $to_rate = $this->getCurrencyProp($to, 'exchange_rate');
-
         // Skip invalid to currency rates
         if ($to_rate === null) {
             return null;

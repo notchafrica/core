@@ -2,9 +2,9 @@
 
 namespace Notch\Core\Commands;
 
-use App\Models\Currency as ModelsCurrency;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Notch\Core\Currency;
 
 class CurrencyHydrate extends Command
@@ -1018,18 +1018,23 @@ class CurrencyHydrate extends Command
     public function handle()
     {
 
-        $r = Http::withOptions(['verify' => false])->get('http://api.exchangerate.host/historical?date=2018-05-11&source=XAF&access_key='.config('core.currency.api_key'));
+        $r = Http::withOptions(['verify' => false])->get('https://api.exchangerate.host/live?source=XAF&access_key='.config('core.currency.api_key').'&currencies='.implode(',', Currency\Models\Currency::all()->pluck('code')->toArray()));
 
         if ($r->ok()) {
+
+            Log::debug($r->json()['quotes']);
             foreach ($r->json()['quotes'] as $code => $rate) {
 
                 $_code = (string) str($code)->replace('XAF', '');
 
-                if ($model = ModelsCurrency::whereCode($_code)->first()) {
+                if ($model = Currency\Models\Currency::whereCode($_code)->first()) {
                     $model->exchange_rate = $rate;
                     $model->save();
                 }
             }
+
+            Currency\Models\Currency::whereCode('XAF')->update(['exchange_rate' => 1]);
+
             $this->info('Rates hydrated from Rest Universe');
 
             return Command::SUCCESS;
