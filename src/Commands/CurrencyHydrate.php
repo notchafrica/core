@@ -1022,7 +1022,6 @@ class CurrencyHydrate extends Command
 
         if ($r->ok()) {
 
-            Log::debug($r->json()['quotes']);
             foreach ($r->json()['quotes'] as $code => $rate) {
 
                 $_code = (string) str($code)->replace('XAF', '');
