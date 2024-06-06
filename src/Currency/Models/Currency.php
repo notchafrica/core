@@ -10,4 +10,9 @@ class Currency extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    public function __construct()
+    {
+        $this->setConnection(config('core.currency.connection', config('database.default')));
+    }
 }
