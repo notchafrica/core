@@ -27,8 +27,8 @@ class SandboxBalance extends Model
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('func.balance.sandbox_table', 'sandbox_balance_history'));
-        $this->setConnection(config('func.balance.connection', config('database.default')));
+        $this->setTable(config('core.balance.sandbox_table', 'sandbox_balance_history'));
+        $this->setConnection(config('core.balance.connection', config('database.default')));
     }
 
     /**
